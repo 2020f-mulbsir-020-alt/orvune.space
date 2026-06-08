@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Orvune — a cosmic railway between worlds. Travel interdimensional routes across impossible planets, forgotten moons, and realities beyond conventional space.">
+  <meta name="keywords" content="Orvune, cosmic railway, interdimensional travel, celestial stations, starline routes">
+  <meta name="theme-color" content="#02040A">
+  <meta property="og:title" content="Orvune — Cosmic Railway Between Worlds">
+  <meta property="og:description" content="Board the most extraordinary cosmic railway ever imagined. Every station exists in a different universe.">
+  <meta property="og:type" content="website">
+  <title>Orvune — Cosmic Railway Between Worlds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&family=Manrope:wght@300;400;500&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a href="#terminus" class="skip-link">Skip to journey</a>
+
+  <!-- WebGL Starfield Canvas -->
+  <canvas id="starfield-canvas" aria-hidden="true"></canvas>
+
+  <!-- Floating Conductor's Compass Navigation -->
+  <nav class="compass-nav" aria-label="Transit navigation">
+    <button class="compass-trigger" id="compass-trigger" aria-expanded="false" aria-controls="transit-map" aria-label="Open transit map">
+      <svg class="compass-icon" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="32" cy="32" r="20" fill="none" stroke="currentColor" stroke-width="0.75" opacity="0.4"/>
+        <polygon points="32,8 36,28 32,24 28,28" fill="var(--accent)" class="compass-needle-n"/>
+        <polygon points="32,56 36,36 32,40 28,36" fill="var(--secondary)" opacity="0.7" class="compass-needle-s"/>
+        <circle cx="32" cy="32" r="3" fill="var(--accent)"/>
+        <text x="32" y="18" text-anchor="middle" fill="currentColor" font-size="6" font-family="Orbitron">N</text>
+      </svg>
+    </button>
+    <div class="transit-map" id="transit-map" aria-hidden="true">
+      <div class="transit-map-inner">
+        <p class="transit-map-label">Transit Map</p>
+        <ul class="transit-destinations">
+          <li><a href="#routes" data-section="routes">Routes</a></li>
+          <li><a href="#platforms" data-section="platforms">Stations</a></li>
+          <li><a href="#moon-station" data-section="moon-station">Junctions</a></li>
+          <li><a href="#comet-desert" data-section="comet-desert">Worlds</a></li>
+          <li><a href="#observatory" data-section="observatory">Observatory</a></li>
+          <li><a href="#final-platform" data-section="final-platform">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main id="journey">
+
+    <!-- SECTION 1 — THE GRAND TERMINUS -->
+    <section id="terminus" class="station terminus" aria-labelledby="terminus-title">
+      <div class="station-vault">
+        <div class="vault-glass" aria-hidden="true"></div>
+        <div class="celestial-clocks" aria-hidden="true">
+          <div class="clock clock-1"><div class="clock-face"><div class="clock-hand hour"></div><div class="clock-hand minute"></div></div></div>
+          <div class="clock clock-2"><div class="clock-face"><div class="clock-hand hour"></div><div class="clock-hand minute"></div></div></div>
+          <div class="clock clock-3"><div class="clock-face"><div class="clock-hand hour"></div><div class="clock-hand minute"></div></div></div>
+        </div>
+      </div>
+      <div class="terminus-content">
+        <p class="station-whisper reveal">Platform Zero — All Realities Converge</p>
+        <h1 id="terminus-title" class="station-title reveal">The Grand Terminus</h1>
+        <p class="station-desc reveal">Vaulted ceilings reveal galaxies beyond transparent glass. Celestial clocks rotate overhead. In the distance, an interstellar locomotive waits on a glowing platform.</p>
+      </div>
+      <div class="locomotive-scene" aria-hidden="true">
+        <div class="platform-glow"></div>
+        <div class="cosmic-train">
+          <div class="train-body">
+            <div class="train-cabin"></div>
+            <div class="train-cabin"></div>
+            <div class="train-cabin"></div>
+            <div class="train-locomotive">
+              <div class="train-smokestack"></div>
+            </div>
+          </div>
+          <div class="train-light-trail"></div>
+        </div>
+        <div class="departure-signal">
+          <span class="signal-light"></span>
+          <span class="signal-text">Awaiting Departure</span>
+        </div>
+      </div>
+      <div class="scroll-prompt" aria-hidden="true">
+        <span>The train departs</span>
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+      </div>
+    </section>
+
+    <!-- SECTION 2 — THE STARLINE ROUTES -->
+    <section id="routes" class="station starline-routes" aria-labelledby="routes-title">
+      <div class="section-header reveal">
+        <p class="station-whisper">Select Your Route</p>
+        <h2 id="routes-title" class="station-title">The Starline Routes</h2>
+        <p class="station-desc">A gigantic animated railway map stretches across space. Thousands of glowing tracks connect distant destinations.</p>
+      </div>
+      <div class="railway-map-container">
+        <svg class="railway-map" viewBox="0 0 800 500" aria-label="Interstellar railway map" role="img">
+          <defs>
+            <linearGradient id="trackGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#7B61FF" stop-opacity="0"/>
+              <stop offset="50%" stop-color="#7B61FF" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#7B61FF" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- Background constellation grid -->
+          <g class="map-grid" opacity="0.15">
+            <line x1="0" y1="100" x2="800" y2="100" stroke="#C8D4E8" stroke-width="0.5"/>
+            <line x1="0" y1="200" x2="800" y2="200" stroke="#C8D4E8" stroke-width="0.5"/>
+            <line x1="0" y1="300" x2="800" y2="300" stroke="#C8D4E8" stroke-width="0.5"/>
+            <line x1="0" y1="400" x2="800" y2="400" stroke="#C8D4E8" stroke-width="0.5"/>
+            <line x1="100" y1="0" x2="100" y2="500" stroke="#C8D4E8" stroke-width="0.5"/>
+            <line x1="200" y1="0" x2="200" y2="500" stroke="#C8D4E8" stroke-width="0.5"/>
+            <line x1="400" y1="0" x2="400" y2="500" stroke="#C8D4E8" stroke-width="0.5"/>
+            <line x1="600" y1="0" x2="600" y2="500" stroke="#C8D4E8" stroke-width="0.5"/>
+          </g>
+          <!-- Route tracks -->
+          <path class="route-track" data-route="nebula" d="M50,250 Q200,100 400,250 T750,250" fill="none" stroke="url(#trackGlow)" stroke-width="2" filter="url(#glow)"/>
+          <path class="route-track" data-route="eclipse" d="M50,350 Q250,200 400,350 T750,350" fill="none" stroke="#F6B94D" stroke-width="1.5" opacity="0.6"/>
+          <path class="route-track" data-route="moonbound" d="M100,150 C200,50 300,350 400,150 S600,350 700,150" fill="none" stroke="#00E5FF" stroke-width="1.5" opacity="0.5"/>
+          <path class="route-track" data-route="aurora" d="M50,400 Q400,300 750,100" fill="none" stroke="#50FA7B" stroke-width="1.5" opacity="0.5"/>
+          <path class="route-track" data-route="phantom" d="M750,400 Q400,250 50,100" fill="none" stroke="#FF6B8A" stroke-width="1" opacity="0.4" stroke-dasharray="8,12"/>
+          <!-- Hub node -->
+          <circle cx="400" cy="250" r="12" fill="#080B12" stroke="#F6B94D" stroke-width="2"/>
+          <circle cx="400" cy="250" r="6" fill="#F6B94D" class="hub-pulse"/>
+        </svg>
+        <ul class="route-cards">
+          <li class="route-card reveal" data-route="nebula">
+            <button class="route-btn" aria-describedby="route-nebula-desc">
+              <span class="route-line-indicator nebula"></span>
+              <span class="route-name">The Nebula Express</span>
+              <span id="route-nebula-desc" class="route-desc">Through violet clouds of creation</span>
+            </button>
+          </li>
+          <li class="route-card reveal" data-route="eclipse">
+            <button class="route-btn" aria-describedby="route-eclipse-desc">
+              <span class="route-line-indicator eclipse"></span>
+              <span class="route-name">The Eclipse Line</span>
+              <span id="route-eclipse-desc" class="route-desc">Where shadow meets starlight</span>
+            </button>
+          </li>
+          <li class="route-card reveal" data-route="moonbound">
+            <button class="route-btn" aria-describedby="route-moonbound-desc">
+              <span class="route-line-indicator moonbound"></span>
+              <span class="route-name">The Moonbound Circuit</span>
+              <span id="route-moonbound-desc" class="route-desc">Orbiting forgotten lunar worlds</span>
+            </button>
+          </li>
+          <li class="route-card reveal" data-route="aurora">
+            <button class="route-btn" aria-describedby="route-aurora-desc">
+              <span class="route-line-indicator aurora"></span>
+              <span class="route-name">The Aurora Track</span>
+              <span id="route-aurora-desc" class="route-desc">Dancing lights across the void</span>
+            </button>
+          </li>
+          <li class="route-card reveal" data-route="phantom">
+            <button class="route-btn" aria-describedby="route-phantom-desc">
+              <span class="route-line-indicator phantom"></span>
+              <span class="route-name">The Phantom Route</span>
+              <span id="route-phantom-desc" class="route-desc">For those who seek the unseen</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SECTION 3 — THE CITY OF FLOATING PLATFORMS -->
+    <section id="platforms" class="station floating-city" aria-labelledby="platforms-title">
+      <div class="section-header reveal">
+        <p class="station-whisper">Arrival — Cloud Level</p>
+        <h2 id="platforms-title" class="station-title">The City of Floating Platforms</h2>
+        <p class="station-desc">Passengers arrive at a city suspended among clouds and stars. Platforms drift slowly through the sky, each containing discoveries and stories.</p>
+      </div>
+      <div class="platforms-scene" aria-hidden="true">
+        <div class="floating-platform platform-1"><div class="platform-surface"></div><div class="platform-pillar"></div></div>
+        <div class="floating-platform platform-2"><div class="platform-surface"></div><div class="platform-pillar"></div></div>
+        <div class="floating-platform platform-3"><div class="platform-surface"></div><div class="platform-pillar"></div></div>
+        <div class="floating-platform platform-4"><div class="platform-surface"></div><div class="platform-pillar"></div></div>
+        <div class="floating-platform platform-5"><div class="platform-surface"></div><div class="platform-pillar"></div></div>
+      </div>
+      <div class="platform-discoveries">
+        <article class="discovery-card reveal">
+          <h3>Whisper Archive</h3>
+          <p>Stories of passengers who never returned — or arrived centuries early.</p>
+        </article>
+        <article class="discovery-card reveal">
+          <h3>Constellation Market</h3>
+          <p>Trade goods mapped to star patterns from worlds that no longer exist.</p>
+        </article>
+        <article class="discovery-card reveal">
+          <h3>Drift Observatory</h3>
+          <p>Watch platforms collide gently, reshaping the city's skyline every orbit.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- SECTION 4 — THE CLOCKWORK MOON STATION -->
+    <section id="moon-station" class="station moon-station" aria-labelledby="moon-title">
+      <div class="moon-scene" aria-hidden="true">
+        <div class="moon-body">
+          <div class="moon-crater crater-1"></div>
+          <div class="moon-crater crater-2"></div>
+          <div class="moon-crater crater-3"></div>
+          <div class="gear gear-large"><div class="gear-teeth"></div></div>
+          <div class="gear gear-medium"><div class="gear-teeth"></div></div>
+          <div class="gear gear-small"><div class="gear-teeth"></div></div>
+          <div class="celestial-tunnel tunnel-1"></div>
+          <div class="celestial-tunnel tunnel-2"></div>
+        </div>
+      </div>
+      <div class="section-header reveal">
+        <p class="station-whisper">Junction — Lunar Orbit</p>
+        <h2 id="moon-title" class="station-title">The Clockwork Moon Station</h2>
+        <p class="station-desc">A giant moon transformed into a railway hub. Enormous gears move the station's infrastructure. Trains arrive through rotating celestial tunnels.</p>
+      </div>
+      <div class="moon-stats reveal">
+        <div class="stat"><span class="stat-value">847</span><span class="stat-label">Active Gears</span></div>
+        <div class="stat"><span class="stat-value">12</span><span class="stat-label">Celestial Tunnels</span></div>
+        <div class="stat"><span class="stat-value">∞</span><span class="stat-label">Arrival Times</span></div>
+      </div>
+    </section>
+
+    <!-- SECTION 5 — THE DESERT OF COMETS -->
+    <section id="comet-desert" class="station comet-desert" aria-labelledby="comet-title">
+      <div class="comet-sky" aria-hidden="true">
+        <div class="comet comet-1" data-info="The first comet carried messages between extinct civilizations."><div class="comet-head"></div><div class="comet-tail"></div></div>
+        <div class="comet comet-2" data-info="Crystalline dunes store memories in their lattice structure."><div class="comet-head"></div><div class="comet-tail"></div></div>
+        <div class="comet comet-3" data-info="Tracks here were laid by machines that predated stars."><div class="comet-head"></div><div class="comet-tail"></div></div>
+      </div>
+      <div class="desert-ground" aria-hidden="true">
+        <div class="dune dune-1"></div>
+        <div class="dune dune-2"></div>
+        <div class="dune dune-3"></div>
+        <div class="desert-track"></div>
+      </div>
+      <div class="section-header reveal">
+        <p class="station-whisper">World — Crystalline Wastes</p>
+        <h2 id="comet-title" class="station-title">The Desert of Comets</h2>
+        <p class="station-desc">A vast cosmic desert illuminated by passing comets. Tracks cross endless crystalline dunes. Each comet reveals hidden information as it passes overhead.</p>
+      </div>
+      <div class="comet-info-panel reveal" id="comet-info" role="status" aria-live="polite">
+        <p class="comet-info-text">Watch the sky — secrets arrive with every passing comet.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 6 — THE OCEAN PLANET CROSSING -->
+    <section id="ocean" class="station ocean-crossing" aria-labelledby="ocean-title">
+      <div class="ocean-scene" aria-hidden="true">
+        <div class="ocean-wave wave-1"></div>
+        <div class="ocean-wave wave-2"></div>
+        <div class="ocean-wave wave-3"></div>
+        <div class="floating-station fs-1"></div>
+        <div class="floating-station fs-2"></div>
+        <div class="biolum creature c-1"></div>
+        <div class="biolum creature c-2"></div>
+        <div class="biolum creature c-3"></div>
+        <div class="ocean-track"></div>
+      </div>
+      <div class="section-header reveal">
+        <p class="station-whisper">Crossing — Endless Tides</p>
+        <h2 id="ocean-title" class="station-title">The Ocean Planet Crossing</h2>
+        <p class="station-desc">The train travels across an endless ocean world. Floating stations drift atop giant waves. Bioluminescent creatures illuminate the route beneath the water.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 7 — THE FOREST OF STARS -->
+    <section id="forest" class="station star-forest" aria-labelledby="forest-title">
+      <div class="forest-scene" aria-hidden="true">
+        <div class="star-tree tree-1"><div class="tree-trunk"></div><div class="tree-canopy"></div><div class="tree-glow"></div></div>
+        <div class="star-tree tree-2"><div class="tree-trunk"></div><div class="tree-canopy"></div><div class="tree-glow"></div></div>
+        <div class="star-tree tree-3"><div class="tree-trunk"></div><div class="tree-canopy"></div><div class="tree-glow"></div></div>
+        <div class="star-tree tree-4"><div class="tree-trunk"></div><div class="tree-canopy"></div><div class="tree-glow"></div></div>
+        <div class="star-tree tree-5"><div class="tree-trunk"></div><div class="tree-canopy"></div><div class="tree-glow"></div></div>
+        <div class="constellation-bridge"></div>
+        <div class="forest-track"></div>
+      </div>
+      <div class="section-header reveal">
+        <p class="station-whisper">World — Luminous Canopy</p>
+        <h2 id="forest-title" class="station-title">The Forest of Stars</h2>
+        <p class="station-desc">A planet covered in luminous trees. Branches connect constellations overhead. The railway winds through glowing forests where every tree emits celestial light.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 8 — THE OBSERVATORY JUNCTION -->
+    <section id="observatory" class="station observatory" aria-labelledby="observatory-title">
+      <div class="observatory-scene" aria-hidden="true">
+        <div class="observatory-dome"></div>
+        <div class="telescope tel-1"></div>
+        <div class="telescope tel-2"></div>
+        <div class="telescope tel-3"></div>
+        <div class="telescope tel-4"></div>
+        <div class="telescope tel-5"></div>
+        <div class="dimension-rift"></div>
+      </div>
+      <div class="section-header reveal">
+        <p class="station-whisper">Junction — Multiversal Nexus</p>
+        <h2 id="observatory-title" class="station-title">The Observatory Junction</h2>
+        <p class="station-desc">A colossal observatory where multiple dimensions intersect. Thousands of telescopes point toward impossible realities.</p>
+      </div>
+      <div class="observatory-routes reveal">
+        <button class="alt-route" data-dimension="alpha">Dimension Alpha — The Mirror Cosmos</button>
+        <button class="alt-route" data-dimension="beta">Dimension Beta — The Inverted Spiral</button>
+        <button class="alt-route" data-dimension="gamma">Dimension Gamma — The Silent Expanse</button>
+      </div>
+      <p class="dimension-readout reveal" id="dimension-readout" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- SECTION 9 — THE EDGE OF THE UNIVERSE -->
+    <section id="edge" class="station universe-edge" aria-labelledby="edge-title">
+      <div class="edge-scene" aria-hidden="true">
+        <div class="sparse-stars"></div>
+        <div class="reality-distortion"></div>
+        <div class="darkness-tracks"></div>
+        <div class="edge-train"></div>
+      </div>
+      <div class="section-header reveal">
+        <p class="station-whisper">Final Approach</p>
+        <h2 id="edge-title" class="station-title">The Edge of the Universe</h2>
+        <p class="station-desc">The train approaches the known limits of existence. Stars become sparse. Reality begins to distort. Tracks extend into darkness beyond the observable cosmos.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 10 — THE FINAL PLATFORM -->
+    <section id="final-platform" class="station final-platform" aria-labelledby="final-title">
+      <div class="final-scene" aria-hidden="true">
+        <div class="infinity-sky"></div>
+        <div class="shifting-galaxies"></div>
+        <div class="final-train">
+          <div class="train-body">
+            <div class="train-cabin"></div>
+            <div class="train-cabin"></div>
+            <div class="train-locomotive"><div class="train-smokestack"></div></div>
+          </div>
+        </div>
+        <div class="departure-gate"></div>
+        <canvas id="constellation-canvas" aria-hidden="true"></canvas>
+      </div>
+      <div class="final-content reveal">
+        <h2 id="final-title" class="final-headline">Every Journey Creates A New Horizon</h2>
+        <div class="departure-gate-ui">
+          <a href="mailto:passenger@orvune.space" class="board-btn" id="board-btn">
+            <span class="board-btn-text">Board Orvune</span>
+            <span class="board-btn-glow"></span>
+          </a>
+        </div>
+        <p class="final-whisper">The cosmic railway awaits your next departure.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="journey-footer" role="contentinfo">
+    <p>&copy; Orvune — Cosmic Railway Between Worlds</p>
+  </footer>
+
+  <script src="js/starfield.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
