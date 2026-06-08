@@ -1,57 +1,57 @@
 /**
- * Orvune — WebGL Starfield with parallax depth layers
+ * Orvune WebGL Starfield
+ * Lightweight parallax star layer with depth tiers
  */
 (function () {
   'use strict';
 
-  const canvas = document.getElementById('starfield-canvas');
+  const canvas = document.getElementById('starfield');
   if (!canvas) return;
 
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReducedMotion) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
 
-  const gl = canvas.getContext('webgl', { alpha: true, antialias: false })
-    || canvas.getContext('experimental-webgl');
-
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
   if (!gl) {
-    canvas.style.display = 'none';
+    initCanvas2DFallback(canvas);
     return;
   }
 
-  const vertexShaderSource = `
+  const vertexSrc = `
     attribute vec2 a_position;
     attribute float a_size;
-    attribute float a_alpha;
-    attribute float a_layer;
+    attribute float a_depth;
     uniform vec2 u_resolution;
     uniform float u_scroll;
     varying float v_alpha;
 
     void main() {
       vec2 pos = a_position;
-      pos.y += u_scroll * a_layer * 0.0003;
-      pos.x += sin(u_scroll * 0.001 + a_position.y * 0.01) * a_layer * 2.0;
+      pos.y += u_scroll * a_depth * 0.0003;
+      pos.x += sin(u_scroll * 0.001 + a_depth) * a_depth * 0.02;
 
-      vec2 clip = ((pos / u_resolution) * 2.0 - 1.0) * vec2(1, -1);
-      gl_Position = vec4(clip, 0, 1);
-      gl_PointSize = a_size;
-      v_alpha = a_alpha;
+      vec2 clip = (pos / u_resolution) * 2.0 - 1.0;
+      clip.y *= -1.0;
+      gl_Position = vec4(clip, 0.0, 1.0);
+      gl_PointSize = a_size * (1.0 + a_depth * 0.5);
+      v_alpha = 0.3 + a_depth * 0.5;
     }
   `;
 
-  const fragmentShaderSource = `
+  const fragmentSrc = `
     precision mediump float;
     varying float v_alpha;
 
     void main() {
-      float dist = length(gl_PointCoord - vec2(0.5));
+      vec2 coord = gl_PointCoord - vec2(0.5);
+      float dist = length(coord);
       if (dist > 0.5) discard;
       float glow = 1.0 - smoothstep(0.0, 0.5, dist);
       gl_FragColor = vec4(0.95, 0.96, 1.0, glow * v_alpha);
     }
   `;
 
-  function createShader(type, source) {
+  function compileShader(type, source) {
     const shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -63,82 +63,83 @@
     return shader;
   }
 
-  const vertexShader = createShader(gl.VERTEX_SHADER, vertexShaderSource);
-  const fragmentShader = createShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
-  if (!vertexShader || !fragmentShader) return;
+  const vs = compileShader(gl.VERTEX_SHADER, vertexSrc);
+  const fs = compileShader(gl.FRAGMENT_SHADER, fragmentSrc);
+  if (!vs || !fs) {
+    initCanvas2DFallback(canvas);
+    return;
+  }
 
   const program = gl.createProgram();
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.warn('Program link error:', gl.getProgramInfoLog(program));
+    initCanvas2DFallback(canvas);
     return;
   }
 
   gl.useProgram(program);
 
-  const STAR_COUNT = 800;
+  const STAR_COUNT = window.innerWidth < 768 ? 400 : 800;
   const positions = new Float32Array(STAR_COUNT * 2);
   const sizes = new Float32Array(STAR_COUNT);
-  const alphas = new Float32Array(STAR_COUNT);
-  const layers = new Float32Array(STAR_COUNT);
+  const depths = new Float32Array(STAR_COUNT);
 
   for (let i = 0; i < STAR_COUNT; i++) {
-    positions[i * 2] = Math.random() * window.innerWidth;
-    positions[i * 2 + 1] = Math.random() * window.innerHeight * 3;
+    positions[i * 2] = Math.random();
+    positions[i * 2 + 1] = Math.random();
     sizes[i] = Math.random() * 2.5 + 0.5;
-    alphas[i] = Math.random() * 0.6 + 0.2;
-    layers[i] = Math.random() * 3 + 0.5;
+    depths[i] = Math.random();
   }
 
-  function createBuffer(data, attribute, size) {
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  function createBuffer(data, attrib, size) {
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-    const loc = gl.getAttribLocation(program, attribute);
+    const loc = gl.getAttribLocation(program, attrib);
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0);
-    return buffer;
+    return buf;
   }
 
-  createBuffer(positions, 'a_position', 2);
+  const posBuffer = createBuffer(positions, 'a_position', 2);
   createBuffer(sizes, 'a_size', 1);
-  createBuffer(alphas, 'a_alpha', 1);
+  createBuffer(depths, 'a_depth', 1);
 
-  const layerBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, layerBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, layers, gl.STATIC_DRAW);
-  const layerLoc = gl.getAttribLocation(program, 'a_layer');
-  gl.enableVertexAttribArray(layerLoc);
-  gl.vertexAttribPointer(layerLoc, 1, gl.FLOAT, false, 0, 0);
-
-  const resolutionLoc = gl.getUniformLocation(program, 'u_resolution');
-  const scrollLoc = gl.getUniformLocation(program, 'u_scroll');
+  const uResolution = gl.getUniformLocation(program, 'u_resolution');
+  const uScroll = gl.getUniformLocation(program, 'u_scroll');
 
   let scrollY = 0;
+  let width = 0;
+  let height = 0;
   let animationId = null;
 
   function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.uniform2f(resolutionLoc, canvas.width, canvas.height);
+
+    for (let i = 0; i < STAR_COUNT; i++) {
+      positions[i * 2] = Math.random() * width;
+      positions[i * 2 + 1] = Math.random() * height;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
   }
 
   function render() {
     gl.clearColor(0.008, 0.016, 0.039, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-    gl.uniform1f(scrollLoc, scrollY);
+    gl.uniform2f(uResolution, width, height);
+    gl.uniform1f(uScroll, scrollY);
     gl.drawArrays(gl.POINTS, 0, STAR_COUNT);
-
     animationId = requestAnimationFrame(render);
   }
 
@@ -157,4 +158,42 @@
       render();
     }
   });
+
+  function initCanvas2DFallback(cvs) {
+    const ctx = cvs.getContext('2d');
+    if (!ctx) return;
+
+    const stars = [];
+    const count = 300;
+
+    function setup() {
+      cvs.width = window.innerWidth * devicePixelRatio;
+      cvs.height = window.innerHeight * devicePixelRatio;
+      stars.length = 0;
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * cvs.width,
+          y: Math.random() * cvs.height,
+          r: Math.random() * 1.5 + 0.5,
+          d: Math.random()
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      const scroll = window.scrollY * devicePixelRatio;
+      stars.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, (s.y + scroll * s.d * 0.1) % cvs.height, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(242, 246, 255, ${0.2 + s.d * 0.5})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', setup);
+    setup();
+    draw();
+  }
 })();

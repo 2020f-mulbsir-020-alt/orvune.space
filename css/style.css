@@ -1,0 +1,1198 @@
+/* ═══════════════════════════════════════════════════════════
+   ORVUNE — Celestial Railway Design System
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --cosmic-night: #080B12;
+  --nebula: #7B61FF;
+  --deep-space: #02040A;
+  --text: #F2F6FF;
+  --accent: #F6B94D;
+  --aurora: #4DD4F6;
+  --comet-silver: #C8D0E0;
+  --crimson-nebula: #FF4D6A;
+  --emerald-starfire: #4DFFB8;
+
+  --font-heading: 'Orbitron', 'Cinzel', serif;
+  --font-display: 'Cinzel', 'Orbitron', serif;
+  --font-body: 'Inter', 'Manrope', sans-serif;
+
+  --section-pad: clamp(4rem, 12vh, 10rem) clamp(1.25rem, 5vw, 4rem);
+  --transition-smooth: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--deep-space);
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Skip Link ─── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 10000;
+  padding: 0.75rem 1.25rem;
+  background: var(--nebula);
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* ─── Starfield Canvas ─── */
+#starfield {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.parallax-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.parallax-layer--far {
+  background: radial-gradient(ellipse at 30% 20%, rgba(123, 97, 255, 0.06) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(246, 185, 77, 0.04) 0%, transparent 40%);
+}
+.parallax-layer--near {
+  background: radial-gradient(circle at 50% 100%, rgba(8, 11, 18, 0.8) 0%, transparent 60%);
+}
+
+/* ─── Journey Progress ─── */
+.journey-progress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100vh;
+  z-index: 100;
+  background: rgba(123, 97, 255, 0.15);
+}
+.journey-progress__track {
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(to bottom, var(--nebula), var(--accent));
+  transition: height 0.15s linear;
+}
+.journey-progress__train {
+  position: absolute;
+  left: -4px;
+  width: 11px;
+  height: 11px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent), 0 0 24px var(--nebula);
+  transform: translateY(-50%);
+  transition: top 0.15s linear;
+}
+
+/* ─── Compass Navigation ─── */
+.compass-nav {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000;
+}
+
+.compass-toggle {
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(123, 97, 255, 0.4);
+  border-radius: 50%;
+  background: rgba(8, 11, 18, 0.85);
+  backdrop-filter: blur(12px);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth), transform 0.3s ease;
+}
+.compass-toggle:hover,
+.compass-toggle:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(246, 185, 77, 0.3);
+  outline: none;
+}
+.compass-toggle[aria-expanded="true"] {
+  transform: rotate(45deg);
+  border-color: var(--accent);
+}
+
+.compass-icon {
+  width: 40px;
+  height: 40px;
+}
+.compass-needle {
+  transform-origin: 32px 32px;
+  animation: compass-sway 4s ease-in-out infinite;
+}
+@keyframes compass-sway {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+.transit-map {
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  width: 280px;
+  height: 280px;
+  transform: translate(50%, -50%) scale(0);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+  pointer-events: none;
+}
+.transit-map.is-open {
+  transform: translate(50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.transit-map__rings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: rings-spin 60s linear infinite;
+}
+@keyframes rings-spin {
+  to { transform: rotate(360deg); }
+}
+
+.transit-destinations {
+  position: absolute;
+  inset: 0;
+  list-style: none;
+}
+.transit-destinations li {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+.transit-destinations a {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0.5rem 0.85rem;
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text);
+  background: rgba(8, 11, 18, 0.9);
+  border: 1px solid rgba(123, 97, 255, 0.35);
+  border-radius: 2px;
+  white-space: nowrap;
+  transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+.transit-destinations a:hover,
+.transit-destinations a:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 16px rgba(246, 185, 77, 0.25);
+  outline: none;
+}
+
+.transit-destinations li:nth-child(1) a { transform: translate(-50%, -50%) translateY(-110px); }
+.transit-destinations li:nth-child(2) a { transform: translate(-50%, -50%) translate(95px, -55px); }
+.transit-destinations li:nth-child(3) a { transform: translate(-50%, -50%) translate(95px, 55px); }
+.transit-destinations li:nth-child(4) a { transform: translate(-50%, -50%) translateY(110px); }
+.transit-destinations li:nth-child(5) a { transform: translate(-50%, -50%) translate(-95px, 55px); }
+.transit-destinations li:nth-child(6) a { transform: translate(-50%, -50%) translate(-95px, -55px); }
+
+/* ─── Journey / Stations ─── */
+.journey {
+  position: relative;
+  z-index: 2;
+}
+
+.station {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--section-pad);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.station__content {
+  position: relative;
+  z-index: 5;
+  max-width: 640px;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+.station.is-visible .station__content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.station__whisper {
+  font-family: var(--font-heading);
+  font-size: clamp(0.6rem, 1.5vw, 0.75rem);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--aurora);
+  margin-bottom: 1rem;
+  opacity: 0.85;
+}
+
+.station__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, var(--text) 0%, var(--comet-silver) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.station__desc {
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  color: rgba(242, 246, 255, 0.75);
+  max-width: 52ch;
+}
+
+.station__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* ═══ SECTION 1 — GRAND TERMINUS ═══ */
+.station--terminus {
+  background: linear-gradient(180deg, var(--deep-space) 0%, var(--cosmic-night) 40%, rgba(123, 97, 255, 0.08) 100%);
+}
+
+.terminus-vault {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+}
+.terminus-glass {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(77, 212, 246, 0.05) 0%, transparent 60%),
+    repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(123, 97, 255, 0.03) 80px, rgba(123, 97, 255, 0.03) 81px);
+  border-bottom: 1px solid rgba(123, 97, 255, 0.2);
+}
+
+.celestial-clocks {
+  position: absolute;
+  top: 15%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 10%;
+}
+.clock {
+  width: clamp(60px, 10vw, 100px);
+  height: clamp(60px, 10vw, 100px);
+  border: 2px solid rgba(246, 185, 77, 0.4);
+  border-radius: 50%;
+  position: relative;
+}
+.clock-face {
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--accent), transparent, var(--nebula), transparent, var(--accent));
+  animation: clock-rotate 30s linear infinite;
+}
+.clock--2 .clock-face { animation-duration: 45s; animation-direction: reverse; }
+.clock--3 .clock-face { animation-duration: 60s; }
+@keyframes clock-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.terminus-platform {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  max-width: 600px;
+}
+.platform-glow {
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--nebula), var(--accent), var(--nebula), transparent);
+  box-shadow: 0 0 30px var(--nebula), 0 0 60px rgba(123, 97, 255, 0.3);
+  border-radius: 2px;
+}
+
+.locomotive {
+  position: absolute;
+  bottom: 8px;
+  left: 10%;
+  width: 120px;
+  height: 40px;
+  animation: locomotive-idle 3s ease-in-out infinite;
+}
+.locomotive__body {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--cosmic-night), var(--nebula));
+  border-radius: 8px 20px 4px 4px;
+  border: 1px solid rgba(246, 185, 77, 0.3);
+}
+.locomotive__light {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  transform: translateY(-50%);
+  box-shadow: 0 0 20px var(--accent);
+}
+.locomotive__trail {
+  position: absolute;
+  left: -60px;
+  top: 50%;
+  width: 50px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--nebula));
+  transform: translateY(-50%);
+}
+@keyframes locomotive-idle {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(8px); }
+}
+
+.departure-signal {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+.departure-signal__dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: signal-pulse 2s ease-in-out infinite;
+}
+@keyframes signal-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
+  50% { opacity: 0.4; box-shadow: none; }
+}
+
+/* ═══ SECTION 2 — STARLINE ROUTES ═══ */
+.station--routes {
+  background: radial-gradient(ellipse at center, rgba(123, 97, 255, 0.1) 0%, var(--deep-space) 70%);
+  align-items: center;
+  text-align: center;
+}
+.station--routes .station__content {
+  max-width: 720px;
+  margin: 0 auto 2rem;
+}
+.station--routes .station__desc {
+  margin: 0 auto;
+}
+
+.route-map {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.route-map__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.route-track {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  transition: stroke-width 0.4s, opacity 0.4s;
+}
+.station--routes.is-visible .route-track {
+  animation: draw-track 2.5s ease forwards;
+}
+.route-track--1 { animation-delay: 0.2s; }
+.route-track--2 { animation-delay: 0.4s; }
+.route-track--3 { animation-delay: 0.6s; }
+.route-track--4 { animation-delay: 0.8s; }
+.route-track--5 { animation-delay: 1s; }
+@keyframes draw-track {
+  to { stroke-dashoffset: 0; }
+}
+
+.route-pulse {
+  animation: hub-pulse 3s ease-in-out infinite;
+}
+@keyframes hub-pulse {
+  0%, 100% { r: 16; opacity: 0.5; }
+  50% { r: 24; opacity: 0.1; }
+}
+
+.route-track.is-active {
+  stroke-width: 3;
+  opacity: 1;
+}
+
+.route-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+.route-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  background: rgba(8, 11, 18, 0.8);
+  border: 1px solid rgba(123, 97, 255, 0.3);
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.route-btn:hover,
+.route-btn:focus-visible,
+.route-btn[aria-pressed="true"] {
+  border-color: var(--route-color, var(--accent));
+  box-shadow: 0 0 20px color-mix(in srgb, var(--route-color, var(--accent)) 30%, transparent);
+  outline: none;
+  transform: translateY(-2px);
+}
+.route-btn__line {
+  width: 20px;
+  height: 2px;
+  background: var(--route-color, var(--nebula));
+  box-shadow: 0 0 8px var(--route-color, var(--nebula));
+}
+
+.route-selected {
+  margin-top: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* ═══ SECTION 3 — FLOATING PLATFORMS ═══ */
+.station--platforms {
+  background: linear-gradient(180deg, var(--deep-space), rgba(77, 212, 246, 0.06) 50%, var(--cosmic-night));
+}
+
+.floating-city {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.platform-float {
+  position: absolute;
+  animation: platform-drift 20s ease-in-out infinite;
+}
+.platform-surface {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(123, 97, 255, 0.2), rgba(8, 11, 18, 0.9));
+  border: 1px solid rgba(123, 97, 255, 0.3);
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(242, 246, 255, 0.1);
+}
+.platform-float--1 { width: 120px; height: 40px; top: 15%; left: 10%; animation-delay: 0s; }
+.platform-float--2 { width: 80px; height: 30px; top: 25%; right: 15%; animation-delay: -5s; }
+.platform-float--3 { width: 150px; height: 50px; top: 45%; left: 60%; animation-delay: -10s; }
+.platform-float--4 { width: 100px; height: 35px; bottom: 30%; left: 20%; animation-delay: -15s; }
+.platform-float--5 { width: 90px; height: 32px; bottom: 20%; right: 25%; animation-delay: -8s; }
+@keyframes platform-drift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(15px, -10px); }
+  50% { transform: translate(-10px, 5px); }
+  75% { transform: translate(8px, 12px); }
+}
+
+.platform-cards {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+.platform-card {
+  padding: 1.25rem 1.5rem;
+  background: rgba(8, 11, 18, 0.7);
+  border: 1px solid rgba(123, 97, 255, 0.2);
+  border-left: 3px solid var(--nebula);
+  backdrop-filter: blur(8px);
+  transition: transform 0.4s, border-color 0.4s;
+}
+.platform-card:hover {
+  transform: translateX(8px);
+  border-color: rgba(246, 185, 77, 0.4);
+}
+.platform-card h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+.platform-card p {
+  font-size: 0.9rem;
+  color: rgba(242, 246, 255, 0.65);
+}
+
+@media (min-width: 640px) {
+  .platform-cards { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ═══ SECTION 4 — MOON STATION ═══ */
+.station--moon {
+  background: radial-gradient(circle at 70% 40%, rgba(200, 208, 224, 0.08) 0%, var(--deep-space) 60%);
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+}
+
+.moon-station__visual {
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(200px, 35vw, 400px);
+  aspect-ratio: 1;
+  opacity: 0.9;
+}
+
+.moon-body {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #4a4f5c, #1a1d28 60%, #080B12);
+  box-shadow: inset -20px -20px 40px rgba(0,0,0,0.5), 0 0 60px rgba(123, 97, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.moon-gear {
+  position: absolute;
+  border: 3px dashed rgba(246, 185, 77, 0.3);
+  border-radius: 50%;
+  animation: gear-turn 20s linear infinite;
+}
+.moon-gear--1 { width: 60%; height: 60%; top: 20%; left: 20%; }
+.moon-gear--2 { width: 40%; height: 40%; top: 30%; left: 30%; animation-direction: reverse; animation-duration: 15s; }
+.moon-gear--3 { width: 25%; height: 25%; top: 37.5%; left: 37.5%; animation-duration: 10s; }
+@keyframes gear-turn {
+  to { transform: rotate(360deg); }
+}
+
+.celestial-tunnel {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--aurora);
+  border-radius: 50%;
+  box-shadow: 0 0 20px var(--aurora), inset 0 0 10px var(--aurora);
+  animation: tunnel-spin 8s linear infinite;
+}
+.celestial-tunnel--1 { top: 10%; left: 45%; }
+.celestial-tunnel--2 { bottom: 15%; right: 20%; animation-direction: reverse; }
+@keyframes tunnel-spin {
+  to { transform: rotate(360deg); }
+}
+
+.moon-train {
+  position: absolute;
+  bottom: -10%;
+  left: 50%;
+  width: 60px;
+  height: 20px;
+  background: var(--nebula);
+  border-radius: 4px;
+  transform: translateX(-50%);
+  animation: moon-train-arrive 6s ease-in-out infinite;
+}
+@keyframes moon-train-arrive {
+  0%, 100% { opacity: 0; transform: translateX(-150%); }
+  30%, 70% { opacity: 1; transform: translateX(-50%); }
+}
+
+/* ═══ SECTION 5 — COMET DESERT ═══ */
+.station--desert {
+  background: linear-gradient(180deg, #0a0812 0%, #1a1020 40%, #120a08 100%);
+}
+
+.desert-dunes {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background:
+    repeating-linear-gradient(135deg, transparent, transparent 40px, rgba(246, 185, 77, 0.03) 40px, rgba(246, 185, 77, 0.03) 41px),
+    linear-gradient(180deg, transparent, rgba(200, 160, 100, 0.08));
+  clip-path: polygon(0 30%, 100% 10%, 100% 100%, 0 100%);
+}
+
+.comet-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.comet {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--comet-silver);
+  border-radius: 50%;
+  box-shadow: 0 0 10px white;
+}
+.comet__tail {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(200, 208, 224, 0.6));
+  transform: translateY(-50%);
+}
+.comet--1 { top: 15%; animation: comet-pass 12s linear infinite; }
+.comet--2 { top: 40%; animation: comet-pass 18s linear infinite 4s; }
+.comet--3 { top: 65%; animation: comet-pass 15s linear infinite 8s; }
+@keyframes comet-pass {
+  0% { left: -10%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: 110%; opacity: 0; }
+}
+
+.comet-reveals {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.comet-reveal {
+  padding: 1rem 1.25rem;
+  background: rgba(8, 11, 18, 0.6);
+  border: 1px solid rgba(200, 208, 224, 0.1);
+  opacity: 0.4;
+  transition: opacity 0.6s, border-color 0.6s, box-shadow 0.6s;
+}
+.comet-reveal.is-revealed {
+  opacity: 1;
+  border-color: rgba(246, 185, 77, 0.4);
+  box-shadow: 0 0 20px rgba(246, 185, 77, 0.1);
+}
+.comet-reveal__label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.35rem;
+}
+.comet-reveal__text {
+  font-size: 0.9rem;
+  color: rgba(242, 246, 255, 0.7);
+}
+
+/* ═══ SECTION 6 — OCEAN CROSSING ═══ */
+.station--ocean {
+  background: linear-gradient(180deg, var(--deep-space) 0%, #041828 50%, #062035 100%);
+  text-align: center;
+}
+.station--ocean .station__content {
+  margin: 0 auto;
+  max-width: 600px;
+}
+.station--ocean .station__desc {
+  margin: 0 auto;
+}
+
+.ocean-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.ocean-wave {
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  width: 120%;
+  height: 30%;
+  background: linear-gradient(180deg, transparent, rgba(77, 212, 246, 0.15));
+  border-radius: 50% 50% 0 0;
+  animation: wave-roll 8s ease-in-out infinite;
+}
+.ocean-wave--2 { height: 25%; animation-delay: -2s; opacity: 0.7; }
+.ocean-wave--3 { height: 20%; animation-delay: -4s; opacity: 0.5; }
+@keyframes wave-roll {
+  0%, 100% { transform: translateX(0) scaleY(1); }
+  50% { transform: translateX(-3%) scaleY(1.05); }
+}
+
+.ocean-station {
+  position: absolute;
+  width: 40px;
+  height: 30px;
+  background: rgba(8, 11, 18, 0.8);
+  border: 1px solid rgba(77, 212, 246, 0.4);
+  border-radius: 4px;
+  animation: station-bob 6s ease-in-out infinite;
+}
+.ocean-station--1 { bottom: 28%; left: 20%; }
+.ocean-station--2 { bottom: 32%; right: 25%; animation-delay: -3s; }
+@keyframes station-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.biolum {
+  position: absolute;
+  bottom: 15%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+.biolum span {
+  width: 4px;
+  height: 4px;
+  background: var(--emerald-starfire);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--emerald-starfire);
+  animation: biolum-glow 3s ease-in-out infinite;
+}
+.biolum span:nth-child(2) { animation-delay: 0.5s; }
+.biolum span:nth-child(3) { animation-delay: 1s; }
+.biolum span:nth-child(4) { animation-delay: 1.5s; }
+.biolum span:nth-child(5) { animation-delay: 2s; }
+@keyframes biolum-glow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* ═══ SECTION 7 — STAR FOREST ═══ */
+.station--forest {
+  background: linear-gradient(180deg, var(--deep-space), rgba(77, 255, 184, 0.05) 40%, var(--cosmic-night));
+}
+
+.star-forest-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.luminous-tree {
+  position: absolute;
+  bottom: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tree-trunk {
+  width: 8px;
+  height: 60px;
+  background: linear-gradient(180deg, rgba(123, 97, 255, 0.4), rgba(8, 11, 18, 0.8));
+}
+.tree-canopy {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--emerald-starfire), transparent 70%);
+  box-shadow: 0 0 30px rgba(77, 255, 184, 0.4);
+  animation: tree-glow 4s ease-in-out infinite;
+}
+.tree--1 { left: 10%; }
+.tree--2 { left: 30%; animation-delay: -1s; }
+.tree--3 { right: 30%; }
+.tree--4 { right: 10%; animation-delay: -2s; }
+.luminous-tree .tree-canopy { animation-delay: inherit; }
+@keyframes tree-glow {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.constellation-branches {
+  position: absolute;
+  top: 15%;
+  left: 10%;
+  right: 10%;
+  height: 30%;
+  background:
+    radial-gradient(1px 1px at 20% 30%, white, transparent),
+    radial-gradient(1px 1px at 40% 20%, white, transparent),
+    radial-gradient(1px 1px at 60% 40%, white, transparent),
+    radial-gradient(1px 1px at 80% 25%, white, transparent),
+    linear-gradient(135deg, transparent 49%, rgba(77, 255, 184, 0.15) 50%, transparent 51%);
+  opacity: 0.6;
+}
+
+.forest-track {
+  position: absolute;
+  bottom: 8%;
+  left: 5%;
+  right: 5%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--nebula), var(--emerald-starfire), var(--nebula), transparent);
+  box-shadow: 0 0 15px var(--emerald-starfire);
+}
+
+/* ═══ SECTION 8 — OBSERVATORY ═══ */
+.station--observatory {
+  background: radial-gradient(ellipse at 50% 0%, rgba(123, 97, 255, 0.12) 0%, var(--deep-space) 70%);
+  text-align: center;
+}
+.station--observatory .station__content {
+  margin: 0 auto;
+  max-width: 700px;
+}
+.station--observatory .station__desc {
+  margin: 0 auto;
+}
+
+.observatory-dome {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(250px, 50vw, 500px);
+  height: clamp(125px, 25vw, 250px);
+  border: 1px solid rgba(123, 97, 255, 0.2);
+  border-bottom: none;
+  border-radius: 250px 250px 0 0;
+  background: linear-gradient(180deg, rgba(123, 97, 255, 0.08), transparent);
+  overflow: hidden;
+}
+
+.telescope-ring {
+  position: absolute;
+  border: 1px solid rgba(246, 185, 77, 0.2);
+  border-radius: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: telescope-sweep 12s ease-in-out infinite;
+}
+.telescope-ring--1 { width: 80%; height: 160%; top: -30%; }
+.telescope-ring--2 { width: 60%; height: 120%; top: -10%; animation-delay: -4s; }
+.telescope-ring--3 { width: 40%; height: 80%; top: 10%; animation-delay: -8s; }
+@keyframes telescope-sweep {
+  0%, 100% { transform: translateX(-50%) rotate(-5deg); }
+  50% { transform: translateX(-50%) rotate(5deg); }
+}
+
+.dimension-portal {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--aurora);
+  box-shadow: 0 0 15px var(--aurora);
+  animation: portal-pulse 3s ease-in-out infinite;
+}
+.dimension-portal--1 { top: 40%; left: 25%; }
+.dimension-portal--2 { top: 40%; right: 25%; animation-delay: -1.5s; }
+@keyframes portal-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+.observatory-routes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+.dimension-btn {
+  padding: 0.75rem 1.25rem;
+  background: rgba(8, 11, 18, 0.8);
+  border: 1px solid rgba(77, 212, 246, 0.3);
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.dimension-btn:hover,
+.dimension-btn:focus-visible,
+.dimension-btn.is-active {
+  border-color: var(--aurora);
+  box-shadow: 0 0 20px rgba(77, 212, 246, 0.25);
+  outline: none;
+}
+
+.dimension-readout {
+  margin-top: 1.5rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--aurora);
+  min-height: 1.5em;
+}
+
+/* ═══ SECTION 9 — EDGE OF UNIVERSE ═══ */
+.station--edge {
+  background: var(--deep-space);
+  text-align: center;
+}
+.station--edge .station__content {
+  margin: 0 auto;
+  max-width: 600px;
+}
+.station--edge .station__desc {
+  margin: 0 auto;
+}
+
+.edge-void {
+  position: absolute;
+  inset: 0;
+}
+.sparse-stars {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 45% 35%, rgba(255,255,255,0.2), transparent),
+    radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 85% 60%, rgba(255,255,255,0.15), transparent);
+}
+
+.distortion-field {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(123, 97, 255, 0.05) 60%, rgba(0,0,0,0.8) 100%);
+  animation: distortion 8s ease-in-out infinite;
+}
+@keyframes distortion {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.edge-tracks {
+  position: absolute;
+  bottom: 20%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--nebula), transparent 70%);
+  box-shadow: 0 0 20px rgba(123, 97, 255, 0.3);
+  animation: edge-extend 6s ease-in-out infinite;
+}
+@keyframes edge-extend {
+  0%, 100% { transform: scaleX(0.6); opacity: 0.5; }
+  50% { transform: scaleX(1); opacity: 1; }
+}
+
+/* ═══ SECTION 10 — FINAL PLATFORM ═══ */
+.station--final {
+  background: radial-gradient(ellipse at 50% 80%, rgba(123, 97, 255, 0.15) 0%, var(--deep-space) 60%);
+  text-align: center;
+  min-height: 100vh;
+}
+
+.final-sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.shifting-galaxies {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(123, 97, 255, 0.2) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 60%, rgba(246, 185, 77, 0.1) 0%, transparent 35%),
+    radial-gradient(ellipse at 50% 20%, rgba(77, 212, 246, 0.08) 0%, transparent 30%);
+  animation: galaxy-shift 20s ease-in-out infinite;
+}
+@keyframes galaxy-shift {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.05) rotate(1deg); }
+}
+
+.final-train {
+  position: absolute;
+  bottom: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 35px;
+  background: linear-gradient(90deg, var(--cosmic-night), var(--nebula));
+  border: 1px solid rgba(246, 185, 77, 0.4);
+  border-radius: 6px 16px 4px 4px;
+  box-shadow: 0 0 30px rgba(123, 97, 255, 0.4);
+}
+
+.constellation-gate {
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 120px;
+  pointer-events: none;
+}
+
+.station__content--final {
+  margin: 0 auto;
+  max-width: 700px;
+}
+
+.station__title--final {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  margin-bottom: 2.5rem;
+}
+
+.departure-gate {
+  margin: 2rem 0;
+}
+
+.board-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.1rem 2.5rem;
+  font-family: var(--font-heading);
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--deep-space);
+  background: linear-gradient(135deg, var(--accent), #e8a830);
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: box-shadow 0.4s, transform 0.3s;
+}
+.board-btn:hover,
+.board-btn:focus-visible {
+  box-shadow: 0 0 40px rgba(246, 185, 77, 0.5), 0 0 80px rgba(123, 97, 255, 0.3);
+  transform: translateY(-3px);
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.board-btn__stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s;
+  background:
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 50% 50%, white, transparent),
+    radial-gradient(2px 2px at 80% 70%, white, transparent);
+}
+.board-btn:hover .board-btn__stars {
+  opacity: 0.6;
+}
+
+.final-contact {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+.final-contact a {
+  color: rgba(242, 246, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.final-contact a:hover {
+  color: var(--aurora);
+}
+
+/* ─── Footer ─── */
+.journey-footer {
+  position: relative;
+  z-index: 2;
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: rgba(242, 246, 255, 0.35);
+  border-top: 1px solid rgba(123, 97, 255, 0.1);
+}
+
+/* ─── Responsive ─── */
+@media (min-width: 768px) {
+  .station--moon .station__content {
+    max-width: 50%;
+  }
+  .station--terminus .station__content {
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 767px) {
+  .moon-station__visual {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    margin: 0 auto 2rem;
+    width: 200px;
+  }
+  .station--moon {
+    flex-direction: column;
+    text-align: center;
+  }
+  .compass-nav {
+    top: 1rem;
+    right: 1rem;
+  }
+  .transit-map {
+    width: 240px;
+    height: 240px;
+  }
+}
